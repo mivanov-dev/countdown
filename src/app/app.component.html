@@ -1,0 +1,11 @@
+<p>current date & time: {{currentDate}} {{currentTime}}</p>
+<input #date
+       type="date">
+<input #time
+       type="time">
+
+<app-countdown [date]="date"
+               [time]="time"
+               (event)="handleEvent($event)"></app-countdown>
+
+<p *ngIf="isEnd">End !</p>
