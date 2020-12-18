@@ -1,4 +1,8 @@
-<p>current date & time: {{currentDate}} {{currentTime}}</p>
+<p>
+  date: <span class="date">{{currentDate | date: 'dd/MM/YY'}}</span>
+  time: <span class="time">{{currentTime}}</span>
+</p>
+
 <input #date
        type="date">
 <input #time
