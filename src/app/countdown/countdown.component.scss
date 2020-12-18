@@ -1,0 +1,18 @@
+.box {
+	background-color: black;
+	color: white;
+	margin-top: 10px;
+	width: 150px;
+	padding: 5px;
+	border-radius: 5px;
+	flex-direction: row;
+	box-sizing: border-box;
+	display: flex;
+	place-content: center space-around;
+	align-items: center;
+	span {
+		border: 2px solid red;
+		padding: 0px 5px;
+		border-radius: 5px;
+	}
+}

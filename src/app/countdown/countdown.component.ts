@@ -1,7 +1,11 @@
 import { AfterViewInit, Component, EventEmitter, Input, Output } from '@angular/core';
 
-import { fromEvent, interval, merge, NEVER } from 'rxjs';
-import { switchMap, startWith, scan, tap, takeWhile } from 'rxjs/operators';
+import { fromEvent, interval, merge, NEVER, Observable } from 'rxjs';
+import { switchMap, startWith, scan, tap } from 'rxjs/operators';
+
+interface State {
+  isEnd: boolean;
+}
 
 @Component({
   selector: 'app-countdown',
@@ -13,9 +17,6 @@ export class CountdownComponent implements AfterViewInit {
   @Input() date: HTMLInputElement;
   @Input() time: HTMLInputElement;
   @Output() event: EventEmitter<boolean> = new EventEmitter<boolean>(false);
-
-  private selectedDate: string;
-  private selectedTime: string;
 
   private milliSecondsInASecond = 1000;
   private hoursInADay = 24;
@@ -35,50 +36,54 @@ export class CountdownComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
 
-    const interval$ = interval(1000);
-
-    merge(
+    const combineInputs$ = merge(
       fromEvent((this.date), 'change'),
       fromEvent((this.time), 'change')
-    )
+    );
+
+    combineInputs$
       .pipe(
         tap(_ => this.event.emit(false)),
-        startWith(({isEnd: false})),
+        startWith(({ isEnd: false })),
         scan((acc, val) => ({ ...acc, ...val })),
-        switchMap((state: { isEnd: boolean }) => state.isEnd ? NEVER : interval$.pipe(
-          // takeWhile(_ => !state.isEnd),
-          tap(_ => {
+        switchMap((state: State) => state.isEnd ? NEVER : this.interval$(state))
+      )
+      .subscribe();
 
-            this.selectedDate = this.date.value;
-            this.selectedTime = this.time.value;
+  }
 
-            this.now = Date.now();
-            this.then = new Date(`${this.selectedDate} ${this.selectedTime}`).getTime();
+  interval$(state: State): Observable<number> {
 
-            this.diff = this.then - this.now;
+    return interval(1000).pipe(
+      // takeWhile(_ => !state.isEnd),
+      tap(_ => {
+        this.now = Date.now();
+        this.then = new Date(`${this.date.value} ${this.time.value}`).getTime();
+        this.diff = this.then - this.now;
 
-            if (this.diff > 0) {
-              this.days = this.calculateDays(this.diff);
-              this.hours = this.calculateHours(this.diff);
-              this.minutes = this.calculateMinutes(this.diff);
-              this.seconds = this.calculateSeconds(this.diff);
-            }
+        if (this.diff > 0) {
+          this.calculateTimeUnits(this.diff);
+        }
 
-            state.isEnd = this.days === 0 && this.hours === 0 && this.minutes === 0 && this.seconds === 0;
+        state.isEnd = this.days === 0 && this.hours === 0 && this.minutes === 0 && this.seconds === 0;
 
-            if (state.isEnd) {
-              this.days = 0;
-              this.hours = 0;
-              this.minutes = 0;
-              this.seconds = 0;
-              this.event.emit(true);
-              state.isEnd = false;
-            }
+        if (state.isEnd) {
+          this.days = 0;
+          this.hours = 0;
+          this.minutes = 0;
+          this.seconds = 0;
+          this.event.emit(true);
+          state.isEnd = false;
+        }
+      })
+    );
+  }
 
-          })
-        ))
-      ).subscribe();
-
+  calculateTimeUnits(diff: number): void {
+    this.days = this.calculateDays(diff);
+    this.hours = this.calculateHours(diff);
+    this.minutes = this.calculateMinutes(diff);
+    this.seconds = this.calculateSeconds(diff);
   }
 
   calculateDays(diff: number): number {
