@@ -1,6 +1,6 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 
-import * as moment from 'moment';
+import { interval } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -10,18 +10,14 @@ import * as moment from 'moment';
 export class AppComponent {
   title = 'Countdown';
 
-  currentDate: string = moment(Date.now()).format('YYYY-MM-DD');
-  currentTime: string = moment(Date.now()).format('HH:mm');
+  currentDateTime: string;
   isEnd = false;
 
   @ViewChild('date', { static: true }) date: ElementRef;
   @ViewChild('time', { static: true }) time: ElementRef;
 
   constructor() {
-    setInterval(() => {
-      this.currentDate = moment(Date.now()).format('DD-MM-YYYY');
-      this.currentTime = moment(Date.now()).format('HH:mm:ss');
-    }, 100);
+    interval(100).subscribe(_ => this.currentDateTime = Date.now().toString());
   }
 
   handleEvent(event: boolean): void {
