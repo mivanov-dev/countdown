@@ -1,5 +1,7 @@
 # Countdown
 
+![countdown](https://user-images.githubusercontent.com/62542434/102690325-484dd300-420d-11eb-9a2e-71bc9cc1217f.png)
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 11.0.4.
 
 ## Development server
